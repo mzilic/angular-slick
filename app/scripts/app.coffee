@@ -28,7 +28,7 @@ angular.module('slick', [])
       initialSlide: "@"
       lazyLoad: "@"
       onBeforeChange: "&"
-      onAfterChange: "&"
+      onAfterChange: "&"      
       onInit: "&"
       onReInit: "&"
       onSetPosition: "&"
@@ -54,7 +54,8 @@ angular.module('slick', [])
       destroySlick = () ->
         $timeout(() ->
           slider = $(element)
-          slider.slick('unslick')
+          slider.slick("slickRemove")
+          slider.removeClass('slick-initialized slick-slider')
           slider.find('.slick-list').remove()
           slider
         )
@@ -111,7 +112,7 @@ angular.module('slick', [])
 
           slider.on 'init', (sl) ->
             scope.onInit() if attrs.onInit
-            if currentIndex?
+            if currentIndex? and sl and sl.slideHandler
               sl.slideHandler(currentIndex)
 
           slider.on 'afterChange', (event, slick, currentSlide, nextSlide) ->
@@ -131,13 +132,15 @@ angular.module('slick', [])
 
       if scope.initOnload
         isInitialized = false
-        scope.$watch("data", (newVal, oldVal) ->
+        scope.$watch("data", (newVal, oldVal) ->           
           if newVal?
+            if oldVal and oldVal.length == newVal.length
+                return
             if isInitialized
               destroySlick()
 
             initializeSlick()
             isInitialized = true
-        )
+        , true)
       else
         initializeSlick()

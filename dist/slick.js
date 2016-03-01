@@ -57,7 +57,8 @@ angular.module('slick', []).directive('slick', [
           return $timeout(function () {
             var slider;
             slider = $(element);
-            slider.slick('unslick');
+            slider.slick('slickRemove');
+            slider.removeClass('slick-initialized slick-slider');
             slider.find('.slick-list').remove();
             return slider;
           });
@@ -120,7 +121,7 @@ angular.module('slick', []).directive('slick', [
               if (attrs.onInit) {
                 scope.onInit();
               }
-              if (currentIndex != null) {
+              if (currentIndex != null && sl && sl.slideHandler) {
                 return sl.slideHandler(currentIndex);
               }
             });
@@ -146,13 +147,16 @@ angular.module('slick', []).directive('slick', [
           isInitialized = false;
           return scope.$watch('data', function (newVal, oldVal) {
             if (newVal != null) {
+              if (oldVal && oldVal.length === newVal.length) {
+                return;
+              }
               if (isInitialized) {
                 destroySlick();
               }
               initializeSlick();
               return isInitialized = true;
             }
-          });
+          }, true);
         } else {
           return initializeSlick();
         }
